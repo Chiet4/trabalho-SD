@@ -26,19 +26,6 @@ public class Despachante {
             String metodo = json.get("methodId").getAsString();
             JsonObject params = json.get("arguments").getAsJsonObject();
 
-            // Converte o objeto JSON decodificado em uma string de argumentos separados por vírgula
-//            StringBuilder argsBuilder = new StringBuilder();
-//            for (String key : params.keySet()) {
-//                if (!argsBuilder.isEmpty()) {
-//                    argsBuilder.append(",");
-//                }
-//                argsBuilder.append(key).append(",").append(params.get(key).getAsString());
-//            }
-//
-//            String args = argsBuilder.toString();
-
-            //logger.info("Argumentos extraídos: " + args);
-
             String result;
             int status;
             switch (metodo) {
@@ -83,7 +70,7 @@ public class Despachante {
             logger.info("Resposta gerada: " + response);
             return gson.toJson(response);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             logger.severe("Erro ao processar a requisição:  " + e.getMessage());
             return "Erro: " + e.getMessage();
         }
