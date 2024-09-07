@@ -13,7 +13,7 @@ public class Ticket {
     private String destino;
     private String nome;
     private int poltrona;
-    private static final IdManager idManager = new IdManager();
+    static final IdManager idManager = new IdManager();
 
     // Construtor
     public Ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) {
@@ -25,10 +25,6 @@ public class Ticket {
         this.nome = nome;
         this.poltrona = poltrona;
         this.id = idManager.gerarId();
-    }
-
-    private String generateId() {
-        return "TICKET-" + poltrona + "-" + cpf.substring(cpf.length() - 3) + "-" + data;
     }
 
     public String getHora() {

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.anchietaalbano.trabalho.Ticket.idManager;
+
 public class Passagem {
     private final Map<String, Ticket> tickets = new HashMap<>();
 
@@ -26,15 +28,21 @@ public class Passagem {
         return novoTicket.getId();
     }
 
-    public void atualizar_reserva(String ticketId, Ticket atualizacao) throws Exception {
+    public String atualizar_reserva(String ticketId, Ticket atualizacao) throws Exception {
         Ticket ticket = tickets.get(ticketId);
 
         if (ticket == null) {
             throw new Exception("Ticket não existe!");
         }
 
+        idManager.liberarId(ticket.getId());
+
+        String novoId = idManager.gerarId();
+
+        atualizacao.setId(novoId);
+
         tickets.put(ticketId, atualizacao);
-        System.out.println("Reserva atualizada!");
+        return atualizacao.getId();
     }
 
     public String cancelar_reserva(String ticketId) throws Exception {
@@ -43,6 +51,8 @@ public class Passagem {
         if (ticket == null) {
             throw new Exception("ID do ticket inválido");
         }
+
+        idManager.liberarId(ticketId);
 
         return "Ticket cancelado: " + ticketId;
     }

@@ -51,8 +51,8 @@ public class Esqueleto {
             int poltrona = params.get("poltrona").getAsInt();
 
             Ticket atualizacao = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
-            passagem.atualizar_reserva(ticketId, atualizacao);
-            return "Reserva atualizada!";
+            String at =  passagem.atualizar_reserva(ticketId, atualizacao);
+            return "Reserva atualizada! ID: " + at;
         } catch (Exception e) {
             logger.severe("Erro ao processar atualizar_reserva: " + e.getMessage());
             return "Erro: " + e.getMessage();
