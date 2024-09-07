@@ -63,7 +63,4 @@ public class Passagem {
         return resultado;
     }
 
-    private Ticket findTicketById(String ticketId) {
-        return tickets.get(ticketId);
-    }
 }

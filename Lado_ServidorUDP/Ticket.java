@@ -1,5 +1,9 @@
 package com.anchietaalbano.trabalho;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Ticket {
     private String id;
     private String cpf;
@@ -9,6 +13,7 @@ public class Ticket {
     private String destino;
     private String nome;
     private int poltrona;
+    private static final IdManager idManager = new IdManager();
 
     // Construtor
     public Ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) {
@@ -19,7 +24,11 @@ public class Ticket {
         this.destino = destino;
         this.nome = nome;
         this.poltrona = poltrona;
-        this.id = generateId(); // Método para gerar um ID único para o ticket
+        this.id = idManager.gerarId();
+    }
+
+    private String generateId() {
+        return "TICKET-" + poltrona + "-" + cpf.substring(cpf.length() - 3) + "-" + data;
     }
 
     public String getHora() {
@@ -86,9 +95,6 @@ public class Ticket {
         this.poltrona = poltrona;
     }
 
-    private String generateId() {
-        return "TICKET-" + poltrona + "-" + cpf.substring(cpf.length() - 3) + "-" + data;
-    }
 
     @Override
     public String toString() {
@@ -99,6 +105,43 @@ public class Ticket {
                 + ", " + destino + ", " + poltro + "]";
 
         return s;
+    }
+}
+
+
+class IdManager {
+    private final List<String> availableIds;
+    private final List<String> usedIds;
+    private final Random random;
+
+    public IdManager() {
+        this.availableIds = new ArrayList<>();
+        this.usedIds = new ArrayList<>();
+        this.random = new Random();
+        GenerateIds();
+    }
+
+    private void GenerateIds() {
+        // Inicializa os IDs disponíveis (exemplo com 10000 IDs)
+        for (int i = 1; i <= 10000; i++) {
+            availableIds.add(String.format("%04d", i));
+        }
+    }
+
+    public String gerarId() {
+        if (availableIds.isEmpty()) {
+            throw new RuntimeException("No available IDs left");
+        }
+        int index = random.nextInt(availableIds.size());
+        String id = availableIds.remove(index);
+        usedIds.add(id);
+        return id;
+    }
+
+    public void liberarId(String id) {
+        if (usedIds.remove(id)) {
+            availableIds.add(id);
+        }
     }
 }
 
