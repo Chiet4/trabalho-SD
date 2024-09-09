@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,6 +19,7 @@ public class UDPServer {
     private static final Gson gson = new Gson();
     private static final Despachante despachante = new Despachante();
     private static final Logger logger = Logger.getLogger(UDPServer.class.getName());
+    private static final Map<String, String> HistoricoRequest = new HashMap<>();
 
     public static void main(String[] args) {
         try (DatagramSocket serverSocket = new DatagramSocket(PORT)) {
@@ -61,7 +64,18 @@ public class UDPServer {
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
         JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
 
-        return despachante.invoke(jsonObject.toString());
+        String requestId = jsonObject.get("requestId").getAsString();
+
+        if(HistoricoRequest.containsKey(requestId)) {
+            logger.info("Request duplicada detectada. Retornando resposta em historio.");
+            return HistoricoRequest.get(requestId);
+        }
+
+        String response = despachante.invoke(jsonObject.toString());
+
+        HistoricoRequest.put(requestId, response);
+
+        return response;
 
     }
 

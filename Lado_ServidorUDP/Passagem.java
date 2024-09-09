@@ -73,4 +73,9 @@ public class Passagem {
         return resultado;
     }
 
+    public boolean reservaExiste(String ticketId) {
+        Ticket ticket = tickets.get(ticketId);
+        return ticket != null; // Retorna true se o ticket existir, false caso contrário
+    }
+
 }

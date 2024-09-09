@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public class Despachante {
-    private Esqueleto esqueleto;
+    private final Esqueleto esqueleto;
     private static final Gson gson = new Gson();
     private static final Logger logger = Logger.getLogger(Despachante.class.getName());
 

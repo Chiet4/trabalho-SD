@@ -42,6 +42,13 @@ public class Esqueleto {
             logger.info("Procesando requisição para atualizar_reserva");
 
             String ticketId = params.get("ticketId").getAsString();
+
+            if(!passagem.reservaExiste(ticketId)){
+                logger.severe("Erro: ticket não encontrado ou cancelado.");
+                return "Erro: Reserva não encontrada ou já cancelada.";
+            }
+
+
             String cpf = params.get("cpf").getAsString();
             String data = params.get("data").getAsString();
             String hora = params.get("hora").getAsString();
