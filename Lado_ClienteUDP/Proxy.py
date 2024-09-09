@@ -34,7 +34,7 @@ class Proxy:
 
     def atualizar_reserva(self, ticket_id, cpf, data, hora, origem, destino, nome, poltrona):
         request = self.doOperation("atualizar_reserva", {
-            "ticket_id": ticket_id,
+            "ticketId": ticket_id,
             "cpf": cpf,
             "data": data,
             "hora": hora,
@@ -55,7 +55,7 @@ class Proxy:
 
     def cancelar_reserva(self, ticket_id):
         request = self.doOperation("cancelar_reserva", {
-            "ticket_id": ticket_id
+            "ticketId": ticket_id
         })
         self.client.send_request(request)
         response = self.client.receive_response()

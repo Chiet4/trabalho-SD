@@ -38,3 +38,4 @@ class UDPClient:
     def close(self):
         self.socket.close()
         logger.info("Socket closed")
+
