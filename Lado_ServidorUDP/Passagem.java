@@ -10,6 +10,7 @@ import static com.anchietaalbano.trabalho.Ticket.idManager;
 public class Passagem {
     private final Map<String, Ticket> tickets = new HashMap<>();
 
+
     public String reservar_ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) throws Exception {
         // Verifica se a poltrona já está reservada
         for (Ticket t : tickets.values()) {
@@ -17,14 +18,15 @@ public class Passagem {
                 throw new Exception("Poltrona já reservada! Escolha outra!");
             }
         }
-        // Verifica se o ônibus está cheio (por exemplo, se o número de tickets é maior que a capacidade)
-        if (tickets.size() >= 20) { // Supondo que a capacidade do ônibus seja 20
+        // Verifica se o ônibus está cheio
+        if (tickets.size() >= 50) { // Supondo que a capacidade do ônibus seja 20
             throw new Exception("Ônibus cheio");
         }
 
         // Cria e adiciona o ticket ao mapa
         Ticket novoTicket = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
         tickets.put(novoTicket.getId(), novoTicket);
+
         return novoTicket.getId();
     }
 
@@ -68,6 +70,16 @@ public class Passagem {
 
         if (resultado.isEmpty()) {
             throw new Exception("Não há tickets reservados para esse CPF.");
+        }
+
+        return resultado;
+    }
+
+    public List<String> consultar_historico(){
+        List<String> resultado = new ArrayList<>();
+
+        for (Ticket t : tickets.values()) {
+            resultado.add(t.toString());
         }
 
         return resultado;

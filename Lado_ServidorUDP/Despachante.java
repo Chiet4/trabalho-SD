@@ -17,14 +17,13 @@ public class Despachante {
         this.esqueleto = new Esqueleto();
     }
 
-    public String invoke(String request) {
+    public String invoke(Message message) {
 
         try {
-            logger.info("Recebendo requisição: " + request);
+            logger.info("Recebendo requisição: " + message);
 
-            JsonObject json = JsonParser.parseString(request).getAsJsonObject();
-            String metodo = json.get("methodId").getAsString();
-            JsonObject params = json.get("arguments").getAsJsonObject();
+            String metodo = message.getMethodId();
+            JsonObject params = message.getParams();
 
             String result;
             int status;
@@ -49,6 +48,11 @@ public class Despachante {
                     result = esqueleto.consultar_reserva(params);
                     status = 200; // OK
                     break;
+                case "consultar_historico":
+                    logger.info("Invocando método: consultar_historico");
+                    result = esqueleto.consultar_historico();
+                    status = 200;
+                    break;
                 default:
                     result = "Erro: Método não encontrado";
                     status = 404; // Not Found
@@ -56,16 +60,17 @@ public class Despachante {
                     break;
             }
 
+
             JsonObject response = new JsonObject();
             response.addProperty("messageType", 1);
-            response.addProperty("requestId", json.get("requestId").getAsInt());
+            response.addProperty("requestId", message.getRequestId());
             response.addProperty("methodId", metodo);
-            response.addProperty("status", status);
 
 
             JsonArray responseArray = new JsonArray();
             responseArray.add(result);
             response.add("arguments", responseArray);
+            response.addProperty("status", status);
 
             logger.info("Resposta gerada: " + response);
             return gson.toJson(response);

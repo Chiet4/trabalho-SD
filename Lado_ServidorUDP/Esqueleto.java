@@ -91,4 +91,16 @@ public class Esqueleto {
             return "Erro: " + e.getMessage();
         }
     }
+
+    public String consultar_historico() {
+        try {
+            logger.info("Processando requisição para consultar_historico");
+
+            List<String> historicos = passagem.consultar_historico();
+            return String.join(";", historicos);
+        }catch (Exception e){
+            logger.severe("Erro ao processar historico: " + e.getMessage());
+            return "Erro: " + e.getMessage();
+        }
+    }
 }

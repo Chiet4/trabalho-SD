@@ -64,14 +64,18 @@ public class UDPServer {
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
         JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
 
-        String requestId = jsonObject.get("requestId").getAsString();
+        logger.info("Requisição recebida: " + request);
+
+        Message message = new Message(request);
+        String requestId = message.getMethodId();
+
 
         if(HistoricoRequest.containsKey(requestId)) {
             logger.info("Request duplicada detectada. Retornando resposta em historio.");
             return HistoricoRequest.get(requestId);
         }
 
-        String response = despachante.invoke(jsonObject.toString());
+        String response = despachante.invoke(message);
 
         HistoricoRequest.put(requestId, response);
 
