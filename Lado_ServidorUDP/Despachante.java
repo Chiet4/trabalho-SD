@@ -61,19 +61,27 @@ public class Despachante {
             }
 
 
-            JsonObject response = new JsonObject();
-            response.addProperty("messageType", 1);
-            response.addProperty("requestId", message.getRequestId());
-            response.addProperty("methodId", metodo);
+//            JsonObject response = new JsonObject();
+//            response.addProperty("messageType", 1);
+//            response.addProperty("requestId", message.getRequestId());
+//            response.addProperty("methodId", metodo);
+//
+//
+//            JsonArray responseArray = new JsonArray();
+//            responseArray.add(result);
+//            response.add("arguments", responseArray);
+//            response.addProperty("status", status);
 
+            JsonObject arguments = new JsonObject();
+            arguments.addProperty("result", result);
+            arguments.addProperty("status", status);
+            Message responseMessage = new Message(1, message.getRequestId(), metodo, arguments);
 
-            JsonArray responseArray = new JsonArray();
-            responseArray.add(result);
-            response.add("arguments", responseArray);
-            response.addProperty("status", status);
+            Gson gson = new Gson();
+            String jsonResponse = gson.toJson(responseMessage);
+            logger.info("Resposta gerada: " + jsonResponse);
 
-            logger.info("Resposta gerada: " + response);
-            return gson.toJson(response);
+            return jsonResponse;
 
         } catch (Exception e) {
             logger.severe("Erro ao processar a requisição:  " + e.getMessage());

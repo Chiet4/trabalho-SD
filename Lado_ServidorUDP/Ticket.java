@@ -96,9 +96,9 @@ public class Ticket {
     public String toString() {
         String s = "";
         String poltro = String.valueOf(poltrona);
-        s = "Ticket [" + getId() + ", " + nome + ", " + cpf + ", "
+        s = "ticket - " + getId() + ", " + nome + ", " + cpf + ", "
                 + data + ", " + hora + ", " + origem
-                + ", " + destino + ", " + poltro + "]";
+                + ", " + destino + ", " + poltro ;
 
         return s;
     }
