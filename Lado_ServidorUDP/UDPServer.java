@@ -62,7 +62,7 @@ public class UDPServer {
     private static String processRequest(DatagramPacket receivePacket) {
 
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
-        JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
+        //JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
 
         logger.info("Requisição recebida: " + request);
 

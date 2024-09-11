@@ -10,7 +10,7 @@ public class Message {
     private int requestId;
     private String methodId;
 
-    private JsonObject parameters;
+    private JsonObject arguments;
 
 
     public Message(String request){
@@ -19,17 +19,15 @@ public class Message {
         messageType = json.get("messageType").getAsInt();
         requestId = json.get("requestId").getAsInt();
         methodId = json.get("methodId").getAsString();
-        parameters = json.get("arguments").getAsJsonObject();
+        arguments = json.get("arguments").getAsJsonObject();
 
     }
 
-    public Message(int messageType, int requestId, String methodId, JsonObject params, int status) {
+    public Message(int messageType, int requestId, String methodId, JsonObject arguments) {
         this.messageType = messageType;
         this.requestId = requestId;
         this.methodId = methodId;
-        this.parameters = new JsonObject();
-        this.parameters.add("result", params);
-        this.parameters.addProperty("status", status);
+        this.arguments = arguments;
     }
 
 
@@ -58,7 +56,7 @@ public class Message {
     }
 
     public JsonObject getParams() {
-        return parameters;
+        return arguments;
     }
 
     public String toString(){
