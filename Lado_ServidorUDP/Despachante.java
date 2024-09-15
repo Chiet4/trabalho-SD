@@ -61,17 +61,6 @@ public class Despachante {
             }
 
 
-//            JsonObject response = new JsonObject();
-//            response.addProperty("messageType", 1);
-//            response.addProperty("requestId", message.getRequestId());
-//            response.addProperty("methodId", metodo);
-//
-//
-//            JsonArray responseArray = new JsonArray();
-//            responseArray.add(result);
-//            response.add("arguments", responseArray);
-//            response.addProperty("status", status);
-
             JsonObject arguments = new JsonObject();
             arguments.addProperty("result", result);
             arguments.addProperty("status", status);

@@ -48,7 +48,6 @@ public class Esqueleto {
                 return "Erro: Reserva não encontrada ou já cancelada.";
             }
 
-
             String cpf = params.get("cpf").getAsString();
             String data = params.get("data").getAsString();
             String hora = params.get("hora").getAsString();

@@ -1,9 +1,7 @@
 package com.anchietaalbano.trabalho;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
 
 import java.io.IOException;
 import java.net.*;
@@ -11,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
 
 public class UDPServer {
@@ -20,12 +18,16 @@ public class UDPServer {
     private static final Despachante despachante = new Despachante();
     private static final Logger logger = Logger.getLogger(UDPServer.class.getName());
     private static final Map<String, String> HistoricoRequest = new HashMap<>();
+    private static DatagramSocket serverSocket = null;
 
     public static void main(String[] args) {
-        try (DatagramSocket serverSocket = new DatagramSocket(PORT)) {
+
+        try {
+            serverSocket = new DatagramSocket(PORT);
+            logger.info("Servidor iniciado!");
             byte[] receiveData = new byte[4096];
 
-            while (true) {
+            do {
                 DatagramPacket receivePacket = getRequest(serverSocket, receiveData);
 
                 // Processa a requisição e gera a resposta
@@ -33,13 +35,29 @@ public class UDPServer {
 
                 // Envia a resposta de volta ao cliente
                 sendReply(serverSocket, response, receivePacket.getAddress(), receivePacket.getPort());
-            }
+            } while (true);
+        } catch (BindException e) {
+            NetworkExceptionHandler.handleBindException(e);
+        } catch (PortUnreachableException e) {
+            NetworkExceptionHandler.handlePortUnreachableException(e);
+        } catch (NoRouteToHostException e) {
+            NetworkExceptionHandler.handleNoRouteToHostException(e);
         } catch (SocketException e) {
-            logger.log(Level.SEVERE, "Socket error: ", e);
+            NetworkExceptionHandler.handleSocketException(e);
+        } catch (UnknownHostException e) {
+            NetworkExceptionHandler.handleUnknownHostException(e);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "IO error: ", e);
+            NetworkExceptionHandler.handleIOException(e);
+        } catch (SecurityException e) {
+            NetworkExceptionHandler.handleSecurityException(e);
+        } finally {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close(); // Fechar o socket corretamente
+                logger.info("Socket fechado com sucesso.");
+            }
         }
     }
+
 
     // Recebimento do Datagrama UDP do cliente
     private static DatagramPacket getRequest(DatagramSocket serverSocket, byte[] receiveData) throws IOException {
@@ -62,7 +80,6 @@ public class UDPServer {
     private static String processRequest(DatagramPacket receivePacket) {
 
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
-        //JsonObject jsonObject = JsonParser.parseString(request).getAsJsonObject();
 
         logger.info("Requisição recebida: " + request);
 
