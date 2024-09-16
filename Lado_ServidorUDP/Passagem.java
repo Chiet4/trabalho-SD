@@ -12,14 +12,14 @@ public class Passagem {
 
 
     public String reservar_ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) throws Exception {
-        // Verifica se a poltrona já está reservada
+
         for (Ticket t : tickets.values()) {
             if (t.getPoltrona() == poltrona) {
                 throw new Exception("Poltrona já reservada! Escolha outra!");
             }
         }
-        // Verifica se o ônibus está cheio
-        if (tickets.size() >= 50) { // Supondo que a capacidade do ônibus seja 20
+
+        if (tickets.size() >= 50) { // Supondo que a capacidade do ônibus seja 50
             throw new Exception("Ônibus cheio");
         }
 
@@ -27,7 +27,7 @@ public class Passagem {
         Ticket novoTicket = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
         tickets.put(novoTicket.getId(), novoTicket);
 
-        return novoTicket.getId();
+        return novoTicket.toString();
     }
 
     public String atualizar_reserva(String ticketId, Ticket atualizacao) throws Exception {
@@ -48,9 +48,9 @@ public class Passagem {
     }
 
     public String cancelar_reserva(String ticketId) throws Exception {
-        Ticket ticket = tickets.remove(ticketId);
+        Ticket ticketRemove = tickets.remove(ticketId);
 
-        if (ticket == null) {
+        if (ticketRemove == null) {
             throw new Exception("ID do ticket inválido");
         }
 

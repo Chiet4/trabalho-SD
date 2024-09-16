@@ -1,11 +1,8 @@
 package com.anchietaalbano.trabalho;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 
 public class Despachante {
@@ -18,55 +15,54 @@ public class Despachante {
     }
 
     public String invoke(Message message) {
-
         try {
             logger.info("Recebendo requisição: " + message);
 
             String metodo = message.getMethodId();
             JsonObject params = message.getParams();
 
-            String result;
-            int status;
+            Resposta resposta; // Usaremos a classe Resposta agora
+
             switch (metodo) {
                 case "reservar_ticket":
                     logger.info("Invocando método: reservar_ticket");
-                    result = esqueleto.reservar_ticket(params);
-                    status = 201; // Created
+                    resposta = esqueleto.reservar_ticket(params);
                     break;
                 case "atualizar_reserva":
                     logger.info("Invocando método: atualizar_ticket");
-                    result = esqueleto.atualizar_reserva(params);
-                    status = 200; // OK
+                    resposta = esqueleto.atualizar_reserva(params);
                     break;
                 case "cancelar_reserva":
                     logger.info("Invocando método: cancelar_reserva");
-                    result = esqueleto.cancelar_reserva(params);
-                    status = 200; // OK
+                    resposta = esqueleto.cancelar_reserva(params);
                     break;
                 case "consultar_reserva":
                     logger.info("Invocando método: consultar_reserva");
-                    result = esqueleto.consultar_reserva(params);
-                    status = 200; // OK
+                    resposta = esqueleto.consultar_reserva(params);
                     break;
                 case "consultar_historico":
                     logger.info("Invocando método: consultar_historico");
-                    result = esqueleto.consultar_historico();
-                    status = 200;
+                    resposta = esqueleto.consultar_historico();
                     break;
                 default:
-                    result = "Erro: Método não encontrado";
-                    status = 404; // Not Found
                     logger.severe("Método não encontrado: " + metodo);
+                    resposta = Resposta.notFound("Erro: Método não encontrado");
                     break;
             }
 
-
+            // Construção da resposta JSON
             JsonObject arguments = new JsonObject();
-            arguments.addProperty("result", result);
-            arguments.addProperty("status", status);
-            Message responseMessage = new Message(1, message.getRequestId(), metodo, arguments);
+            arguments.addProperty("result", resposta.getMensagem());
+            arguments.addProperty("status", resposta.getCodigo());
 
-            Gson gson = new Gson();
+            // Criação do objeto de resposta Message
+            Message responseMessage = new Message();
+            responseMessage.setMessageType(1); // Tipo de resposta
+            responseMessage.setRequestId(message.getRequestId());
+            responseMessage.setMethodId(metodo);
+            responseMessage.setArguments(arguments);
+
+            // Conversão do objeto Message para JSON
             String jsonResponse = gson.toJson(responseMessage);
             logger.info("Resposta gerada: " + jsonResponse);
 

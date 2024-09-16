@@ -27,6 +27,8 @@ public class Ticket {
         this.id = idManager.gerarId();
     }
 
+    public Ticket(){}
+
     public String getHora() {
         return hora;
     }

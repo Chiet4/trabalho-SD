@@ -1,8 +1,5 @@
 package com.anchietaalbano.trabalho;
 
-import com.google.gson.Gson;
-
-
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -12,9 +9,9 @@ import java.util.Map;
 
 import java.util.logging.Logger;
 
+
 public class UDPServer {
     private static final int PORT = 9876;
-    private static final Gson gson = new Gson();
     private static final Despachante despachante = new Despachante();
     private static final Logger logger = Logger.getLogger(UDPServer.class.getName());
     private static final Map<String, String> HistoricoRequest = new HashMap<>();
@@ -27,7 +24,7 @@ public class UDPServer {
             logger.info("Servidor iniciado!");
             byte[] receiveData = new byte[4096];
 
-            do {
+            while (true) {
                 DatagramPacket receivePacket = getRequest(serverSocket, receiveData);
 
                 // Processa a requisição e gera a resposta
@@ -35,7 +32,7 @@ public class UDPServer {
 
                 // Envia a resposta de volta ao cliente
                 sendReply(serverSocket, response, receivePacket.getAddress(), receivePacket.getPort());
-            } while (true);
+            }
         } catch (BindException e) {
             NetworkExceptionHandler.handleBindException(e);
         } catch (PortUnreachableException e) {

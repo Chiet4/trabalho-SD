@@ -30,6 +30,12 @@ public class Message {
         this.arguments = arguments;
     }
 
+    public Message() {
+    }
+
+    public void setArguments(JsonObject arguments) {
+        this.arguments = arguments;
+    }
 
     public int getMessageType() {
         return messageType;

@@ -1,51 +1,24 @@
 package com.anchietaalbano.trabalho;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.util.List;
 import java.util.logging.Logger;
 
 public class Esqueleto {
-    private Passagem passagem;
+    private final Passagem passagem;
     private static final Logger logger = Logger.getLogger(Esqueleto.class.getName());
 
     public Esqueleto() {
-        this.passagem = new Passagem(); // Instancia a classe Passagem
+        this.passagem = new Passagem();
     }
 
-    public String reservar_ticket(JsonObject params) {
+    public Resposta reservar_ticket(JsonObject params) {
         try {
-
             logger.info("Processando requisição para reservar_ticket");
 
-            // Acessa os parâmetros diretamente pelas suas chaves
-            String cpf = params.get("cpf").getAsString();
-            String data = params.get("data").getAsString();
-            String hora = params.get("hora").getAsString();
-            String origem = params.get("origem").getAsString();
-            String destino = params.get("destino").getAsString();
-            String nome = params.get("nome").getAsString();
-            int poltrona = params.get("poltrona").getAsInt();
-
-            // Chama o método de reserva
-            return passagem.reservar_ticket(cpf, data, hora, origem, destino, nome, poltrona);
-        } catch (Exception e) {
-            return "Erro: " + e.getMessage();
-        }
-    }
-
-
-    public String atualizar_reserva(JsonObject params) {
-        try {
-
-            logger.info("Procesando requisição para atualizar_reserva");
-
-            String ticketId = params.get("ticketId").getAsString();
-
-            if(!passagem.reservaExiste(ticketId)){
-                logger.severe("Erro: ticket não encontrado ou cancelado.");
-                return "Erro: Reserva não encontrada ou já cancelada.";
+            if (!ValidacaoDeDados.validarTicket(params)) {
+                return Resposta.badRequest("Erro: Dados inválidos na requisição.");
             }
 
             String cpf = params.get("cpf").getAsString();
@@ -56,50 +29,93 @@ public class Esqueleto {
             String nome = params.get("nome").getAsString();
             int poltrona = params.get("poltrona").getAsInt();
 
-            Ticket atualizacao = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
-            String at =  passagem.atualizar_reserva(ticketId, atualizacao);
-            return "Reserva atualizada! ID: " + at;
+            String resultado = passagem.reservar_ticket(cpf, data, hora, origem, destino, nome, poltrona);
+            return Resposta.criado("Reserva criada com sucesso: " + resultado);
         } catch (Exception e) {
-            logger.severe("Erro ao processar atualizar_reserva: " + e.getMessage());
-            return "Erro: " + e.getMessage();
+            logger.severe("Erro interno ao reservar ticket: " + e.getMessage());
+            return Resposta.erroInterno("Erro interno ao reservar ticket.");
         }
     }
 
-    public String cancelar_reserva(JsonObject params) {
+    public Resposta atualizar_reserva(JsonObject params) {
+        try {
+            logger.info("Processando requisição para atualizar_reserva");
 
+            String ticketId = params.get("ticketId").getAsString();
+
+            if (!passagem.reservaExiste(ticketId)) {
+                return Resposta.notFound("Erro: Reserva não encontrada ou já cancelada.");
+            }
+
+            if (!ValidacaoDeDados.validarTicket(params)) {
+                return Resposta.badRequest("Erro: Dados inválidos na requisição.");
+            }
+
+            String cpf = params.get("cpf").getAsString();
+            String data = params.get("data").getAsString();
+            String hora = params.get("hora").getAsString();
+            String origem = params.get("origem").getAsString();
+            String destino = params.get("destino").getAsString();
+            String nome = params.get("nome").getAsString();
+            int poltrona = params.get("poltrona").getAsInt();
+
+            String resultado = passagem.atualizar_reserva(ticketId, new Ticket(cpf, data, hora, origem, destino, nome, poltrona));
+            return Resposta.ok("Reserva atualizada com sucesso: " + resultado);
+        } catch (Exception e) {
+            logger.severe("Erro interno ao atualizar reserva: " + e.getMessage());
+            return Resposta.erroInterno("Erro interno ao atualizar reserva.");
+        }
+    }
+
+    public Resposta cancelar_reserva(JsonObject params) {
         try {
             logger.info("Processando requisição para cancelar_reserva");
 
             String ticketId = params.get("ticketId").getAsString();
-            return passagem.cancelar_reserva(ticketId);
+
+            if (!ValidacaoDeDados.validarCancelarReserva(params)) {
+                return Resposta.badRequest("Erro: Dados inválidos na requisição.");
+            }
+
+            String resultado = passagem.cancelar_reserva(ticketId);
+            return Resposta.ok("Reserva cancelada com sucesso: " + resultado);
         } catch (Exception e) {
-            logger.severe("Erro ao processar cancelar_reserva: " + e.getMessage());
-            return "Erro: " + e.getMessage();
+            logger.severe("Erro interno ao cancelar reserva: " + e.getMessage());
+            return Resposta.erroInterno("Erro interno ao cancelar reserva.");
         }
     }
 
-    public String consultar_reserva(JsonObject params) {
+    public Resposta consultar_reserva(JsonObject params) {
         try {
             logger.info("Processando requisição para consultar_reserva");
 
             String cpf = params.get("cpf").getAsString();
+
+            if (!ValidacaoDeDados.validarConsultarReserva(params)) {
+                return Resposta.badRequest("Erro: Dados inválidos na requisição.");
+            }
+
             List<String> reservas = passagem.consultar_reserva(cpf);
-            return String.join(";", reservas);
+            if (reservas.isEmpty()) {
+                return Resposta.notFound("Nenhuma reserva encontrada para o CPF informado.");
+            }
+
+            return Resposta.ok(String.join(";", reservas));
         } catch (Exception e) {
-            logger.severe("Erro ao processar consultar_reserva: " + e.getMessage());
-            return "Erro: " + e.getMessage();
+            logger.severe("Erro interno ao consultar reserva: " + e.getMessage());
+            return Resposta.erroInterno("Erro interno ao consultar reserva.");
         }
     }
 
-    public String consultar_historico() {
+    public Resposta consultar_historico() {
         try {
             logger.info("Processando requisição para consultar_historico");
 
             List<String> historicos = passagem.consultar_historico();
-            return String.join(";", historicos);
-        }catch (Exception e){
-            logger.severe("Erro ao processar historico: " + e.getMessage());
-            return "Erro: " + e.getMessage();
+            return Resposta.ok(String.join(";", historicos));
+        } catch (Exception e) {
+            logger.severe("Erro interno ao consultar histórico: " + e.getMessage());
+            return Resposta.erroInterno("Erro interno ao consultar histórico.");
         }
     }
 }
