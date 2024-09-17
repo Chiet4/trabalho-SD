@@ -1,5 +1,9 @@
 package com.anchietaalbano.trabalho;
 
+import com.anchietaalbano.trabalho.exceptions.NetworkExceptionHandler;
+import com.anchietaalbano.trabalho.logs.LoggerColorido;
+import com.anchietaalbano.trabalho.metodosTransparentes.Despachante;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -7,13 +11,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.logging.Logger;
 
 
 public class UDPServer {
     private static final int PORT = 9876;
     private static final Despachante despachante = new Despachante();
-    private static final Logger logger = Logger.getLogger(UDPServer.class.getName());
+
     private static final Map<String, String> HistoricoRequest = new HashMap<>();
     private static DatagramSocket serverSocket = null;
 
@@ -21,7 +24,7 @@ public class UDPServer {
 
         try {
             serverSocket = new DatagramSocket(PORT);
-            logger.info("Servidor iniciado!");
+            LoggerColorido.logInfo("Servidor iniciado!");
             byte[] receiveData = new byte[4096];
 
             while (true) {
@@ -50,7 +53,7 @@ public class UDPServer {
         } finally {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close(); // Fechar o socket corretamente
-                logger.info("Socket fechado com sucesso.");
+                LoggerColorido.logInfo("Socket fechado com sucesso.");
             }
         }
     }
@@ -60,7 +63,7 @@ public class UDPServer {
     private static DatagramPacket getRequest(DatagramSocket serverSocket, byte[] receiveData) throws IOException {
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         serverSocket.receive(receivePacket);
-        logger.info("Received packet from " + receivePacket.getAddress() + ":" + receivePacket.getPort());
+        LoggerColorido.logInfo("Received packet from " + receivePacket.getAddress() + ":" + receivePacket.getPort());
 
         return receivePacket;
     }
@@ -71,21 +74,21 @@ public class UDPServer {
 
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
         serverSocket.send(sendPacket);
-        logger.info("Sent response to " + clientAddress + ":" + clientPort + " = " + Arrays.toString(sendData));
+        LoggerColorido.logInfo("Sent response to " + clientAddress + ":" + clientPort + " = " + Arrays.toString(sendData));
     }
 
     private static String processRequest(DatagramPacket receivePacket) {
 
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
 
-        logger.info("Requisição recebida: " + request);
+        LoggerColorido.logInfo("Requisição recebida: " + request);
 
         Message message = new Message(request);
         String requestId = message.getMethodId();
 
 
         if(HistoricoRequest.containsKey(requestId)) {
-            logger.info("Request duplicada detectada. Retornando resposta em historio.");
+            LoggerColorido.logInfo("Request duplicada detectada. Retornando resposta em historio.");
             return HistoricoRequest.get(requestId);
         }
 

@@ -27,7 +27,7 @@ public class Passagem {
         Ticket novoTicket = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
         tickets.put(novoTicket.getId(), novoTicket);
 
-        return novoTicket.toString();
+        return novoTicket.getId();
     }
 
     public String atualizar_reserva(String ticketId, Ticket atualizacao) throws Exception {

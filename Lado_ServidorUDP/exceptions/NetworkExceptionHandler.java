@@ -1,4 +1,4 @@
-package com.anchietaalbano.trabalho;
+package com.anchietaalbano.trabalho.exceptions;
 
 import java.io.IOException;
 import java.net.*;

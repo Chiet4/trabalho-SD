@@ -1,5 +1,10 @@
-package com.anchietaalbano.trabalho;
+package com.anchietaalbano.trabalho.metodosTransparentes;
 
+import com.anchietaalbano.trabalho.Passagem;
+import com.anchietaalbano.trabalho.Resposta;
+import com.anchietaalbano.trabalho.Ticket;
+import com.anchietaalbano.trabalho.logs.LoggerColorido;
+import com.anchietaalbano.trabalho.validates.ValidacaoDeDados;
 import com.google.gson.JsonObject;
 
 import java.util.List;
@@ -7,7 +12,6 @@ import java.util.logging.Logger;
 
 public class Esqueleto {
     private final Passagem passagem;
-    private static final Logger logger = Logger.getLogger(Esqueleto.class.getName());
 
     public Esqueleto() {
         this.passagem = new Passagem();
@@ -15,7 +19,7 @@ public class Esqueleto {
 
     public Resposta reservar_ticket(JsonObject params) {
         try {
-            logger.info("Processando requisição para reservar_ticket");
+            LoggerColorido.logInfo("Processando requisição para reservar_ticket");
 
             if (!ValidacaoDeDados.validarTicket(params)) {
                 return Resposta.badRequest("Erro: Dados inválidos na requisição.");
@@ -32,14 +36,14 @@ public class Esqueleto {
             String resultado = passagem.reservar_ticket(cpf, data, hora, origem, destino, nome, poltrona);
             return Resposta.criado("Reserva criada com sucesso: " + resultado);
         } catch (Exception e) {
-            logger.severe("Erro interno ao reservar ticket: " + e.getMessage());
+            LoggerColorido.logErro("Erro interno ao reservar ticket: " + e.getMessage());
             return Resposta.erroInterno("Erro interno ao reservar ticket.");
         }
     }
 
     public Resposta atualizar_reserva(JsonObject params) {
         try {
-            logger.info("Processando requisição para atualizar_reserva");
+            LoggerColorido.logErro("Processando requisição para atualizar_reserva");
 
             String ticketId = params.get("ticketId").getAsString();
 
@@ -62,14 +66,14 @@ public class Esqueleto {
             String resultado = passagem.atualizar_reserva(ticketId, new Ticket(cpf, data, hora, origem, destino, nome, poltrona));
             return Resposta.ok("Reserva atualizada com sucesso: " + resultado);
         } catch (Exception e) {
-            logger.severe("Erro interno ao atualizar reserva: " + e.getMessage());
+            LoggerColorido.logErro("Erro interno ao atualizar reserva: " + e.getMessage());
             return Resposta.erroInterno("Erro interno ao atualizar reserva.");
         }
     }
 
     public Resposta cancelar_reserva(JsonObject params) {
         try {
-            logger.info("Processando requisição para cancelar_reserva");
+            LoggerColorido.logInfo("Processando requisição para cancelar_reserva");
 
             String ticketId = params.get("ticketId").getAsString();
 
@@ -80,14 +84,14 @@ public class Esqueleto {
             String resultado = passagem.cancelar_reserva(ticketId);
             return Resposta.ok("Reserva cancelada com sucesso: " + resultado);
         } catch (Exception e) {
-            logger.severe("Erro interno ao cancelar reserva: " + e.getMessage());
+            LoggerColorido.logErro("Erro interno ao cancelar reserva: " + e.getMessage());
             return Resposta.erroInterno("Erro interno ao cancelar reserva.");
         }
     }
 
     public Resposta consultar_reserva(JsonObject params) {
         try {
-            logger.info("Processando requisição para consultar_reserva");
+            LoggerColorido.logInfo("Processando requisição para consultar_reserva");
 
             String cpf = params.get("cpf").getAsString();
 
@@ -102,19 +106,19 @@ public class Esqueleto {
 
             return Resposta.ok(String.join(";", reservas));
         } catch (Exception e) {
-            logger.severe("Erro interno ao consultar reserva: " + e.getMessage());
+            LoggerColorido.logErro("Erro interno ao consultar reserva: " + e.getMessage());
             return Resposta.erroInterno("Erro interno ao consultar reserva.");
         }
     }
 
     public Resposta consultar_historico() {
         try {
-            logger.info("Processando requisição para consultar_historico");
+            LoggerColorido.logInfo("Processando requisição para consultar_historico");
 
             List<String> historicos = passagem.consultar_historico();
             return Resposta.ok(String.join(";", historicos));
         } catch (Exception e) {
-            logger.severe("Erro interno ao consultar histórico: " + e.getMessage());
+            LoggerColorido.logErro("Erro interno ao consultar histórico: " + e.getMessage());
             return Resposta.erroInterno("Erro interno ao consultar histórico.");
         }
     }

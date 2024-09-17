@@ -1,4 +1,4 @@
-package com.anchietaalbano.trabalho;
+package com.anchietaalbano.trabalho.validates;
 
 import com.google.gson.JsonObject;
 
