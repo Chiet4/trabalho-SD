@@ -83,6 +83,12 @@ public class UDPServer {
 
         LoggerColorido.logInfo("Requisição recebida: " + request);
 
+        // Verificar se a mensagem é "HELLO" para confirmação de conexão
+        if ("HELLO".equals(request.trim())) {
+            LoggerColorido.logInfo("Mensagem de conexão recebida. Enviando resposta de confirmação.");
+            return "OK";  // Resposta simples para confirmar a "conexão"
+        }
+
         Message message = new Message(request);
         String requestId = message.getMethodId();
 
