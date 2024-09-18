@@ -8,7 +8,6 @@ import com.anchietaalbano.trabalho.validates.ValidacaoDeDados;
 import com.google.gson.JsonObject;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class Esqueleto {
     private final Passagem passagem;
