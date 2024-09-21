@@ -21,13 +21,20 @@ public class Despachante {
             String methodName = message.getMethodId();
             JsonObject params = message.getParams();
 
-            Method methodToInvoke = encontrarMetodo(methodName);
+            Method methodToInvoke = encontrarMetodo(methodName, params);
+
             if (methodToInvoke == null) {
                 return construirRespostaErro("Erro: Método não encontrado: " + methodName);
             }
 
-            Resposta resposta = (Resposta) methodToInvoke.invoke(esqueleto, params);
-            return construirMensagemResposta(message.getRequestId(), methodToInvoke.getName(), resposta);
+            Object resposta;
+            if ("consultar_historico".equals(methodName)) {
+                resposta = methodToInvoke.invoke(esqueleto);
+            } else {
+                resposta = methodToInvoke.invoke(esqueleto, params);
+            }
+
+            return construirMensagemResposta(message.getRequestId(), methodToInvoke.getName(), (Resposta) resposta);
 
         } catch (ReflectiveOperationException e) {
             LoggerColorido.logErro("Erro de reflexão: " + e.getMessage());
@@ -38,12 +45,21 @@ public class Despachante {
         }
     }
 
-    private Method encontrarMetodo(String methodName) {
+    private Method encontrarMetodo(String methodName, JsonObject params) {
         try {
-            return Esqueleto.class.getDeclaredMethod(methodName, JsonObject.class);
+            Method method;
+            if (params == null || params.isEmpty()) {
+                method = Esqueleto.class.getDeclaredMethod(methodName);
+            } else {
+                method = Esqueleto.class.getDeclaredMethod(methodName, JsonObject.class);
+            }
+            method.setAccessible(true); // Torna o método acessível se for privado
+            return method;
         } catch (NoSuchMethodException e) {
+            LoggerColorido.logErro("Método não encontrado: " + methodName + " com parâmetros: " + params);
             return null; // Método não encontrado
         }
+
     }
 
     private String construirRespostaErro(String mensagemErro) {

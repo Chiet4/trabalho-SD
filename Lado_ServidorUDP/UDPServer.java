@@ -80,16 +80,16 @@ public class UDPServer {
         }
 
         String response = despachante.invoke(message);
-        HistoricoRequest.put(requestHash, response);
+        if (response != null && !response.isEmpty()) {
+            HistoricoRequest.put(requestHash, response);
+        }
         return response;
 
     }
 
     private static String gerarSimplesHash(Message message){
-
-        String uniqueMessage = message.getMethodId() + message.getParams().toString();
+        String uniqueMessage = message.getRequestId() + message.getMethodId() + message.getParams().toString();
         return Integer.toString(uniqueMessage.hashCode());
-
     }
 
 
