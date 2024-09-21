@@ -37,24 +37,24 @@ public class Passagem {
             throw new Exception("Ticket não existe!");
         }
 
-        idManager.liberarId(ticket.getId());
+        idManager.liberarId(ticketId);
+        // Remove o ticket antigo
+        tickets.remove(ticketId);
 
-        String novoId = idManager.gerarId();
+        tickets.put(atualizacao.getId(), atualizacao);
 
-        atualizacao.setId(novoId);
-
-        tickets.put(ticketId, atualizacao);
         return atualizacao.getId();
     }
 
     public String cancelar_reserva(String ticketId) throws Exception {
-        Ticket ticketRemove = tickets.remove(ticketId);
+        Ticket ticketRemove = tickets.get(ticketId);
 
         if (ticketRemove == null) {
-            throw new Exception("ID do ticket inválido");
+            throw new Exception("Ticket não existe!");
         }
 
-        idManager.liberarId(ticketId);
+        tickets.remove(ticketId);
+        Ticket.idManager.liberarId(ticketId);
 
         return "Ticket cancelado: " + ticketId;
     }
@@ -87,7 +87,7 @@ public class Passagem {
 
     public boolean reservaExiste(String ticketId) {
         Ticket ticket = tickets.get(ticketId);
-        return ticket != null; // Retorna true se o ticket existir, false caso contrário
+        return ticket != null;
     }
 
 }

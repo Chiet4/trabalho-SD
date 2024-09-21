@@ -89,9 +89,6 @@ public class Ticket {
         return poltrona;
     }
 
-    public void setPoltrona(int poltrona) {
-        this.poltrona = poltrona;
-    }
 
 
     @Override
@@ -136,11 +133,16 @@ class IdManager {
         return id;
     }
 
+    public List<String> getUsedIds() {
+        return usedIds;
+    }
+
     public void liberarId(String id) {
         if (usedIds.remove(id)) {
             availableIds.add(id);
         }
     }
+
     
 }
 

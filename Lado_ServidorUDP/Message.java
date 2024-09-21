@@ -14,20 +14,12 @@ public class Message {
 
 
     public Message(String request){
-
         JsonObject json = JsonParser.parseString(request).getAsJsonObject();
         messageType = json.get("messageType").getAsInt();
         requestId = json.get("requestId").getAsInt();
         methodId = json.get("methodId").getAsString();
         arguments = json.get("arguments").getAsJsonObject();
 
-    }
-
-    public Message(int messageType, int requestId, String methodId, JsonObject arguments) {
-        this.messageType = messageType;
-        this.requestId = requestId;
-        this.methodId = methodId;
-        this.arguments = arguments;
     }
 
     public Message() {
