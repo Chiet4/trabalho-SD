@@ -40,6 +40,7 @@ public class UDPServer {
             handleException(e);
         } finally {
             serverSocket.close();
+            LoggerColorido.logInfo("Servidor fechado!");
         }
     }
     
@@ -69,17 +70,26 @@ public class UDPServer {
 
         Message message = new Message(request);
 
-        String requestId = message.getMethodId();
+        String requestHash = gerarSimplesHash(message);
 
-        if(HistoricoRequest.containsKey(requestId)) {
+        if(HistoricoRequest.containsKey(requestHash)) {
             LoggerColorido.logInfo("Request duplicada detectada. Retornando resposta em historio.");
-            return HistoricoRequest.get(requestId);
+            return HistoricoRequest.get(requestHash);
         }
 
         String response = despachante.invoke(message);
-        HistoricoRequest.put(requestId, response);
+        HistoricoRequest.put(requestHash, response);
         return response;
+
     }
+
+    private static String gerarSimplesHash(Message message){
+
+        String uniqueMessage = message.getMethodId() + message.getParams().toString();
+        return Integer.toString(uniqueMessage.hashCode());
+
+    }
+
 
     private static void handleException(Exception e) {
         if (e instanceof BindException) {
