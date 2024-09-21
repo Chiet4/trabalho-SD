@@ -21,7 +21,6 @@ public class Despachante {
             String methodName = message.getMethodId();
             JsonObject params = message.getParams();
 
-
             Method methodToInvoke = encontrarMetodo(methodName);
             if (methodToInvoke == null) {
                 return construirRespostaErro("Erro: Método não encontrado: " + methodName);

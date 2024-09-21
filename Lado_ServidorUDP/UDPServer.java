@@ -39,8 +39,10 @@ public class UDPServer {
         } catch (Exception e) {
             handleException(e);
         } finally {
-            serverSocket.close();
-            LoggerColorido.logInfo("Servidor fechado!");
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+                LoggerColorido.logInfo("Servidor fechado!");
+            }
         }
     }
     

@@ -6,38 +6,49 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+import com.google.gson.JsonObject;
+
 public class ValidacaoDeDados {
 
     private static final Logger logger = Logger.getLogger(ValidacaoDeDados.class.getName());
 
-    public static boolean validarTicket(JsonObject params) {
-        boolean result;
-        try {
-            String cpf = params.get("cpf").getAsString();
-            String nome = params.get("nome").getAsString();
-            String data = params.get("data").getAsString();
-            String hora = params.get("hora").getAsString();
-            String origem = params.get("origem").getAsString();
-            String destino = params.get("destino").getAsString();
-            int poltrona = params.get("poltrona").getAsInt();
+    public static void validarTicket(JsonObject params) throws Exception {
+        String cpf = getParam(params, "cpf");
+        String nome = getParam(params, "nome");
+        String data = getParam(params, "data");
+        String hora = getParam(params, "hora");
+        String origem = getParam(params, "origem");
+        String destino = getParam(params, "destino");
+        int poltrona = getIntParam(params, "poltrona");
 
-            // Validações para cada argumento
-            result = validarCPF(cpf) &&
-                    validarNome(nome) &&
-                    validarData(data) &&
-                    validarHora(hora) &&
-                    validarOrigemDestino(origem) &&
-                    validarOrigemDestino(destino) &&
-                    validarPoltrona(poltrona);
-
-        } catch (Exception e) {
-            logger.severe("Erro na validação dos dados: " + e.getMessage());
-            result = false;
+        // Validações para cada argumento
+        if (!validarCPF(cpf)) {
+            throw new Exception("CPF inválido: " + cpf);
         }
-        return result;
+        if (!validarNome(nome)) {
+            throw new Exception("Nome inválido: " + nome);
+        }
+        if (!validarData(data)) {
+            throw new Exception("Data inválida: " + data);
+        }
+        if (!validarHora(hora)) {
+            throw new Exception("Hora inválida: " + hora);
+        }
+        if (!validarOrigemDestino(origem)) {
+            throw new Exception("Origem inválida: " + origem);
+        }
+        if (!validarOrigemDestino(destino)) {
+            throw new Exception("Destino inválido: " + destino);
+        }
+        if (!validarPoltrona(poltrona)) {
+            throw new Exception("Número da poltrona inválido: " + poltrona);
+        }
     }
 
-    private static boolean validarCPF(String cpf) {
+    public static boolean validarCPF(String cpf) {
         if (cpf != null && cpf.matches("\\d{11}")) {
             return true;
         }
@@ -97,8 +108,20 @@ public class ValidacaoDeDados {
         return params.has("ticketId") && !params.get("ticketId").getAsString().isEmpty();
     }
 
-    public static boolean validarConsultarReserva(JsonObject params) {
-        return params.has("cpf") && validarCPF(params.get("cpf").getAsString());
+    // Métodos auxiliares para obter parâmetros do JsonObject
+    private static String getParam(JsonObject params, String paramName) throws Exception {
+        if (params.has(paramName) && !params.get(paramName).isJsonNull()) {
+            return params.get(paramName).getAsString();
+        } else {
+            throw new Exception("Parâmetro " + paramName + " não encontrado ou é nulo.");
+        }
+    }
+
+    private static int getIntParam(JsonObject params, String paramName) throws Exception {
+        if (params.has(paramName) && !params.get(paramName).isJsonNull()) {
+            return params.get(paramName).getAsInt();
+        }
+        throw new Exception("Parâmetro " + paramName + " não encontrado ou é nulo.");
     }
 
 }

@@ -118,7 +118,7 @@ class IdManager {
 
     private void GenerateIds() {
         // Inicializa os IDs disponíveis (exemplo com 10000 IDs)
-        for (int i = 1; i <= 10000; i++) {
+        for (int i = 1; i <= 100; i++) {
             availableIds.add(String.format("%04d", i));
         }
     }

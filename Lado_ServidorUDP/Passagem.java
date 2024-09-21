@@ -4,28 +4,28 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 
-import static com.anchietaalbano.trabalho.Ticket.idManager;
+import java.util.*;
 
 public class Passagem {
     private final Map<String, Ticket> tickets = new HashMap<>();
-
+    private final Set<Integer> poltronasReservadas = new HashSet<>();
+    private static final int CAPACIDADE_ONIBUS = 50;
 
     public String reservar_ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) throws Exception {
-
-        for (Ticket t : tickets.values()) {
-            if (t.getPoltrona() == poltrona) {
-                throw new Exception("Poltrona já reservada! Escolha outra!");
-            }
+        if (poltronasReservadas.contains(poltrona)) {
+            throw new Exception("Poltrona já reservada! Escolha outra!");
         }
 
-        if (tickets.size() >= 50) { // Supondo que a capacidade do ônibus seja 50
+        if (tickets.size() >= CAPACIDADE_ONIBUS) {
             throw new Exception("Ônibus cheio");
         }
 
         // Cria e adiciona o ticket ao mapa
         Ticket novoTicket = new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
         tickets.put(novoTicket.getId(), novoTicket);
+        poltronasReservadas.add(poltrona);
 
         return novoTicket.getId();
     }
@@ -37,11 +37,14 @@ public class Passagem {
             throw new Exception("Ticket não existe!");
         }
 
-        idManager.liberarId(ticketId);
-        // Remove o ticket antigo
+        // Remove a poltrona antiga e libera o ID
+        poltronasReservadas.remove(ticket.getPoltrona());
         tickets.remove(ticketId);
+        Ticket.idManager.liberarId(ticketId);
 
+        // Adiciona o ticket atualizado
         tickets.put(atualizacao.getId(), atualizacao);
+        poltronasReservadas.add(atualizacao.getPoltrona());
 
         return atualizacao.getId();
     }
@@ -54,6 +57,7 @@ public class Passagem {
         }
 
         tickets.remove(ticketId);
+        poltronasReservadas.remove(ticketRemove.getPoltrona());
         Ticket.idManager.liberarId(ticketId);
 
         return "Ticket cancelado: " + ticketId;
@@ -75,7 +79,7 @@ public class Passagem {
         return resultado;
     }
 
-    public List<String> consultar_historico(){
+    public List<String> consultar_historico() {
         List<String> resultado = new ArrayList<>();
 
         for (Ticket t : tickets.values()) {
@@ -86,8 +90,8 @@ public class Passagem {
     }
 
     public boolean reservaExiste(String ticketId) {
-        Ticket ticket = tickets.get(ticketId);
-        return ticket != null;
+        return tickets.containsKey(ticketId);
     }
-
 }
+
+
