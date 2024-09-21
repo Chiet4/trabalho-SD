@@ -25,7 +25,7 @@ public class UDPServer {
         try {
             serverSocket = new DatagramSocket(PORT);
             LoggerColorido.logInfo("Servidor iniciado!");
-            byte[] receiveData = new byte[4096];
+            byte[] receiveData = new byte[512];
 
             while (true) {
                 DatagramPacket receivePacket = getRequest(serverSocket, receiveData);
@@ -36,29 +36,13 @@ public class UDPServer {
                 // Envia a resposta de volta ao cliente
                 sendReply(serverSocket, response, receivePacket.getAddress(), receivePacket.getPort());
             }
-        } catch (BindException e) {
-            NetworkExceptionHandler.handleBindException(e);
-        } catch (PortUnreachableException e) {
-            NetworkExceptionHandler.handlePortUnreachableException(e);
-        } catch (NoRouteToHostException e) {
-            NetworkExceptionHandler.handleNoRouteToHostException(e);
-        } catch (SocketException e) {
-            NetworkExceptionHandler.handleSocketException(e);
-        } catch (UnknownHostException e) {
-            NetworkExceptionHandler.handleUnknownHostException(e);
-        } catch (IOException e) {
-            NetworkExceptionHandler.handleIOException(e);
-        } catch (SecurityException e) {
-            NetworkExceptionHandler.handleSecurityException(e);
+        } catch (Exception e) {
+            handleException(e);
         } finally {
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close(); // Fechar o socket corretamente
-                LoggerColorido.logInfo("Socket fechado com sucesso.");
-            }
+            serverSocket.close();
         }
     }
-
-
+    
     // Recebimento do Datagrama UDP do cliente
     private static DatagramPacket getRequest(DatagramSocket serverSocket, byte[] receiveData) throws IOException {
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -81,17 +65,11 @@ public class UDPServer {
 
         String request = new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength(), StandardCharsets.UTF_8);
 
-        LoggerColorido.logInfo("Requisição recebida: " + request);
-
-        // Verificar se a mensagem é "HELLO" para confirmação de conexão
-        if ("HELLO".equals(request.trim())) {
-            LoggerColorido.logInfo("Mensagem de conexão recebida. Enviando resposta de confirmação.");
-            return "OK";  // Resposta simples para confirmar a "conexão"
-        }
+        LoggerColorido.logInfo("Received request:" + request);
 
         Message message = new Message(request);
-        String requestId = message.getMethodId();
 
+        String requestId = message.getMethodId();
 
         if(HistoricoRequest.containsKey(requestId)) {
             LoggerColorido.logInfo("Request duplicada detectada. Retornando resposta em historio.");
@@ -99,11 +77,26 @@ public class UDPServer {
         }
 
         String response = despachante.invoke(message);
-
         HistoricoRequest.put(requestId, response);
-
         return response;
+    }
 
+    private static void handleException(Exception e) {
+        if (e instanceof BindException) {
+            NetworkExceptionHandler.handleBindException((BindException) e);
+        } else if (e instanceof PortUnreachableException) {
+            NetworkExceptionHandler.handlePortUnreachableException((PortUnreachableException) e);
+        } else if (e instanceof NoRouteToHostException) {
+            NetworkExceptionHandler.handleNoRouteToHostException((NoRouteToHostException) e);
+        } else if (e instanceof SocketException) {
+            NetworkExceptionHandler.handleSocketException((SocketException) e);
+        } else if (e instanceof UnknownHostException) {
+            NetworkExceptionHandler.handleUnknownHostException((UnknownHostException) e);
+        } else if (e instanceof IOException) {
+            NetworkExceptionHandler.handleIOException((IOException) e);
+        } else if (e instanceof SecurityException) {
+            NetworkExceptionHandler.handleSecurityException((SecurityException) e);
+        }
     }
 
 }
