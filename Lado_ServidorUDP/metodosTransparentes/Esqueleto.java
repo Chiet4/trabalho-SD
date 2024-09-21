@@ -42,7 +42,7 @@ public class Esqueleto {
 
     public Resposta atualizar_reserva(JsonObject params) {
         try {
-            LoggerColorido.logErro("Processando requisição para atualizar_reserva");
+            LoggerColorido.logInfo("Processando requisição para atualizar_reserva");
 
             String ticketId = params.get("ticketId").getAsString();
 
@@ -84,7 +84,7 @@ public class Esqueleto {
             return Resposta.ok("Reserva cancelada com sucesso: " + resultado);
         } catch (Exception e) {
             LoggerColorido.logErro("Erro interno ao cancelar reserva: " + e.getMessage());
-            return Resposta.erroInterno("Erro interno ao cancelar reserva.");
+            return Resposta.erroInterno("Erro interno ao cancelar reserva: "+e.getMessage());
         }
     }
 
@@ -106,9 +106,10 @@ public class Esqueleto {
             return Resposta.ok(String.join(";", reservas));
         } catch (Exception e) {
             LoggerColorido.logErro("Erro interno ao consultar reserva: " + e.getMessage());
-            return Resposta.erroInterno("Erro interno ao consultar reserva.");
+            return Resposta.erroInterno("Erro: " + e.getMessage());
         }
     }
+
 
     public Resposta consultar_historico() {
         try {

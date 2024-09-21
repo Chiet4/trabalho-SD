@@ -13,52 +13,60 @@ public class Despachante {
     private static final Gson gson = new Gson();
 
     public Despachante() {
-        this.esqueleto = new Esqueleto();
+        esqueleto = new Esqueleto();
     }
 
     public String invoke(Message message) {
         try {
-            LoggerColorido.logInfo("Recebendo requisição: " + message);
-
             String methodName = message.getMethodId();
             JsonObject params = message.getParams();
 
-            // Obter o método correspondente no objeto Esqueleto usando reflexão
-            Method[] methods = Esqueleto.class.getDeclaredMethods();
-            Method methodToInvoke = null;
-            for (Method method : methods) {
-                if (method.getName().equals(methodName)) {
-                    methodToInvoke = method;
-                    break;
-                }
-            }
 
+            Method methodToInvoke = encontrarMetodo(methodName);
             if (methodToInvoke == null) {
-                LoggerColorido.logErro("Método não encontrado: " + methodName);
-                return "Erro: Método não encontrado";
+                return construirRespostaErro("Erro: Método não encontrado: " + methodName);
             }
 
             Resposta resposta = (Resposta) methodToInvoke.invoke(esqueleto, params);
+            return construirMensagemResposta(message.getRequestId(), methodToInvoke.getName(), resposta);
 
-            // Construção da resposta JSON
-            JsonObject arguments = new JsonObject();
-            arguments.addProperty("result", resposta.getMensagem());
-            arguments.addProperty("status", resposta.getCodigo());
-
-            Message responseMessage = new Message();
-            responseMessage.setMessageType(1); // Tipo de resposta
-            responseMessage.setRequestId(message.getRequestId());
-            responseMessage.setMethodId(methodToInvoke.getName());
-            responseMessage.setArguments(arguments);
-
-            // Conversão do objeto Message para JSON
-            String jsonResponse = gson.toJson(responseMessage);
-            LoggerColorido.logInfo("Resposta gerada: " + jsonResponse);
-
-            return jsonResponse;
+        } catch (ReflectiveOperationException e) {
+            LoggerColorido.logErro("Erro de reflexão: " + e.getMessage());
+            return construirRespostaErro("Erro de reflexão: " + e.getMessage());
         } catch (Exception e) {
-            LoggerColorido.logInfo("Erro ao processar a requisição: " + e.getMessage());
-            return "Erro: " + e.getMessage();
+            LoggerColorido.logErro("Erro ao processar a requisição: " + e.getMessage());
+            return construirRespostaErro("Erro ao processar a requisição: " + e.getMessage());
         }
     }
+
+    private Method encontrarMetodo(String methodName) {
+        try {
+            return Esqueleto.class.getDeclaredMethod(methodName, JsonObject.class);
+        } catch (NoSuchMethodException e) {
+            return null; // Método não encontrado
+        }
+    }
+
+    private String construirRespostaErro(String mensagemErro) {
+        Resposta resposta = Resposta.badRequest(mensagemErro);
+        return construirMensagemResposta(-1, null, resposta); // -1 para requestId não aplicável em erros
+    }
+
+    private String construirMensagemResposta(int requestId, String methodName, Resposta resposta) {
+        JsonObject arguments = new JsonObject();
+        arguments.addProperty("result", resposta.getMensagem());
+        arguments.addProperty("status", resposta.getCodigo());
+
+        Message responseMessage = new Message();
+        responseMessage.setMessageType(1); // Tipo de resposta
+        responseMessage.setRequestId(requestId);
+        responseMessage.setMethodId(methodName);
+        responseMessage.setArguments(arguments);
+
+        // Conversão do objeto Message para JSON
+        String jsonResponse = gson.toJson(responseMessage);
+        LoggerColorido.logInfo("Resposta gerada: " + jsonResponse);
+        return jsonResponse;
+    }
 }
+
