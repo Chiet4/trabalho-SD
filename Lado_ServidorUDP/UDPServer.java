@@ -28,7 +28,7 @@ public class UDPServer {
             byte[] receiveData = new byte[512];
 
             while (true) {
-                DatagramPacket receivePacket = getRequest(serverSocket, receiveData);
+                DatagramPacket receivePacket = getRequest();
 
                 // Processa a requisição e gera a resposta
                 String response = processRequest(receivePacket);
@@ -47,7 +47,8 @@ public class UDPServer {
     }
     
     // Recebimento do Datagrama UDP do cliente
-    private static DatagramPacket getRequest(DatagramSocket serverSocket, byte[] receiveData) throws IOException {
+    private static DatagramPacket getRequest() throws IOException {
+        byte[] receiveData = new byte[512];  // Define o buffer de recebimento dentro do método
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         serverSocket.receive(receivePacket);
         LoggerColorido.logInfo("Received packet from " + receivePacket.getAddress() + ":" + receivePacket.getPort());
