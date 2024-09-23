@@ -1,122 +1,101 @@
-from UDPClient import UDPClient
 import json
-import logging
+from Mensagem import Message
+from UDPClient import UDPClient
 
-# Configuração do logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 class Proxy:
     def __init__(self, hostname, port):
         self.request_id = 0
         self.client = UDPClient(hostname, port)
 
-    def reservar_ticket(self, cpf, data, hora, origem, destino, nome, poltrona):
-        request = self.doOperation("reservar_ticket", {
-            "cpf": cpf,
-            "data": data,
-            "hora": hora,
-            "origem": origem,
-            "destino": destino,
-            "nome": nome,
-            "poltrona": poltrona
-        })
-        self.client.send_request(request)
-        response = self.client.receive_response()
-        if response:
-            response = self.doOperation(response)
-            logger.info(f"Response for reservar_ticket: {response}")
-            print(f"Resposta: {response}")
-            return response
-        else:
-            logger.error("No response received from server")
-            return None
-
-    def atualizar_reserva(self, ticket_id, cpf, data, hora, origem, destino, nome, poltrona):
-        request = self.doOperation("atualizar_reserva", {
-            "ticketId": ticket_id,
-            "cpf": cpf,
-            "data": data,
-            "hora": hora,
-            "origem": origem,
-            "destino": destino,
-            "nome": nome,
-            "poltrona": poltrona
-        })
-        self.client.send_request(request)
-        response = self.client.receive_response()
-        if response:
-            response = self.doOperation(response)
-            print(f"Resposta: {response}")
-            return response
-        else:
-            logger.error("No response received from server")
-            return None
-
-    def cancelar_reserva(self, ticket_id):
-        request = self.doOperation("cancelar_reserva", {
-            "ticketId": ticket_id
-        })
-        self.client.send_request(request)
-        response = self.client.receive_response()
-        if response:
-            response = self.doOperation(response)
-            print(f"Resposta: {response}")
-            return response
-        else:
-            logger.error("No response received from server")
-            return None
-
-    def consultar_reserva(self, cpf):
-        request = self.doOperation("consultar_reserva", {
-            "cpf": cpf
-        })
-        self.client.send_request(request)
-        response = self.client.receive_response()
-        if response:
-            response = self.doOperation(response)
-            print(f"Resposta: {response}")
-            return response
-        else:
-            logger.error("No response received from server")
-            return None
-
-    def doOperation(self, messageType, params=None):
-        # Incrementando o request_id para cada operação
+    def doOperation(self, methodId, params=None):
         self.request_id += 1
 
         if params is not None:
-            # Criação da mensagem de requisição
-            message = {
-                "messageType": 0,  # 0 = Request
-                "requestId": self.request_id,
-                "methodId": messageType,
-                "arguments": params
-            }
-            # Serialização da mensagem em JSON
-            return json.dumps(message)
-        else:
-            # Processamento da resposta
-            message = json.loads(messageType)  # Desserializa a resposta JSON
+            # Cria a mensagem de requisição
+            message = Message(methodId)
+            message.setMessageType(0)  # 0 = Requisição
+            message.setRequestId(self.request_id)
+            message.setArguments(params)
 
-            if message["messageType"] == 1:  # 1 = Reply
+            return message.to_json()  # Já gera uma string JSON
+        else:
+            # Processa a resposta
+            if isinstance(methodId, str):
+                message = json.loads(methodId)  # Desserializa a resposta se for string JSON
+            else:
+                message = methodId  # Se já for um dicionário, usa diretamente
+
+            if message["messageType"] == 1:  # 1 = Resposta
                 arguments = message["arguments"]
 
                 if isinstance(arguments, str):
                     try:
                         arguments_json = json.loads(arguments)
                     except json.JSONDecodeError as e:
-                        logger.error(f"Failed to decode JSON: {e}")
+                        print(f"Falha ao decodificar o JSON: {e}")
                         return None
                 else:
                     arguments_json = arguments
-                # Verificar se houve sucesso na operação
-                response = {
-                    "result": arguments_json,
-                    "status": message["status"]
-                }
+
+                response = arguments_json
                 return response
+            return None
+
+
+
+
+    def reservar_ticket(self,cpf, nome, data, hora, origem, destino, poltrona):
+        requisicao = self.doOperation("reservar_ticket", {
+            "cpf": cpf,
+            "nome": nome,
+            "data": data,
+            "hora": hora,
+            "origem": origem,
+            "destino": destino,
+
+            "poltrona": poltrona
+        })
+        self.client.enviar_solicitacao(requisicao)
+        resposta = self.client.receber_requisicao()
+        return self.doOperation(resposta)
+
+    def atualizar_ticket(self, ticket_id, cpf ,nome, data, hora, origem, destino,  poltrona):
+        requisicao = self.doOperation("atualizar_reserva", {
+            "ticketId": ticket_id,
+            "cpf": cpf,
+            "nome": nome,
+            "data": data,
+            "hora": hora,
+            "origem": origem,
+            "destino": destino,
+            "poltrona": poltrona
+        })
+        self.client.enviar_solicitacao(requisicao)
+        resposta = self.client.receber_requisicao()
+        return self.doOperation(resposta)
+
+    def cancelar_ticket(self, ticket_id):
+        requisicao = self.doOperation("cancelar_reserva", {
+            "ticketId": ticket_id
+        })
+        self.client.enviar_solicitacao(requisicao)
+        resposta = self.client.receber_requisicao()
+        return self.doOperation(resposta)
+
+    def consultar_reserva(self, cpf):
+        requisicao = self.doOperation("consultar_reserva", {
+            "cpf": cpf
+        })
+        self.client.enviar_solicitacao(requisicao)
+        resposta = self.client.receber_requisicao()
+        return self.doOperation(resposta)
+
+    def buscar_historico(self):
+        requisicao = self.doOperation("consultar_historico", {})
+        self.client.enviar_solicitacao(requisicao)
+        resposta = self.client.receber_requisicao()
+        return self.doOperation(resposta)
 
     def close(self):
         self.client.close()
-

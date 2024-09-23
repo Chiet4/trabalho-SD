@@ -46,9 +46,14 @@ def main():
         def _tratar_chamada_metodo_proxy(self, metodo_proxy, *args):
             try:
                 resposta = metodo_proxy(*args)
-                print(f'Resposta recebida: {resposta}')
+                if resposta is not None:
+                    print(f'Resposta recebida: {resposta}')
+                else:
+                    print('Nenhuma resposta recebida ou erro.')
+                return resposta
             except Exception as erro:
                 print(f'Erro ao executar: {erro}')
+                return None
 
         @staticmethod
         def _data():
@@ -69,23 +74,14 @@ def main():
                 print("ERRO: Use apenas formato YYYY-MM-DD.")
                 return False
 
-        # def _validar_ticket(self, ticket_id):
-        #     try:
-        #         resposta = self._tratar_chamada_metodo_proxy(self.proxy.verificar_ticket, ticket_id, None)
-        #
-        #         return resposta.get("existe", False)
-        #     except Exception as erro:
-        #         print(f"Erro ao encontrar o ticket: {erro}")
-        #         return False
 
         @staticmethod
         def _validar_cpf(cpf):
-            while True:
-                if cpf.isdigit() and len(cpf) == 11:
-                    return True
-                else:
-                    print("ERRO ao digitar CPF. Só pode conter apenas números e ter 11 dígitos.")
-                    cpf = input("CPF: ")
+            if cpf.isdigit() and len(cpf) == 11:
+                return True
+            else:
+                print("ERRO ao digitar CPF. Só pode conter apenas números e ter 11 dígitos.")
+                return
 
         @staticmethod
         def _validar_nome(nome):
@@ -196,17 +192,11 @@ def main():
             if not self._validar_poltrona(poltrona):
                 return
 
-            # print('-=' * 20)
-            # print("\nReserva realizada com sucesso!")
-            # ticket_id = randint(1000, 9999)
-            # print(f"Reserva realizada. Seu ticket ID é {ticket_id}")
-            self._tratar_chamada_metodo_proxy(self.proxy.reservar_ticket, nome, cpf, data, hora, origem,
-                                              destino, int(poltrona))
+
+            self._tratar_chamada_metodo_proxy(self.proxy.reservar_ticket, cpf, nome, data, hora, origem,
+                                              destino, poltrona)
 
         def atualizar_reserva(self):
-            # ticket_id = input("ID do Ticket: ")
-            # if not self._validar_ticket:
-            #     return
             ticket_id = input("ID do Ticket: ")
 
             cpf = input("CPF: ")
@@ -237,12 +227,11 @@ def main():
             if not self._validar_poltrona(poltrona):
                 return
 
-            self._tratar_chamada_metodo_proxy(self.proxy.atualizar_reserva, ticket_id, nome, cpf, data, hora, origem,
-                                              destino, int(poltrona))
+            self._tratar_chamada_metodo_proxy(self.proxy.atualizar_ticket, ticket_id, cpf, nome, data, hora, origem, destino, poltrona)
 
         def cancelar_reserva(self):
             ticket_id = input("ID do Ticket: ")
-            self._tratar_chamada_metodo_proxy(self.proxy.cancelar_reserva, ticket_id)
+            self._tratar_chamada_metodo_proxy(self.proxy.cancelar_ticket, ticket_id)
 
         def consultar_reserva(self):
             cpf = input('CPF: ')
@@ -250,25 +239,11 @@ def main():
                 return
 
             resposta = self._tratar_chamada_metodo_proxy(self.proxy.consultar_reserva, cpf)
-            if resposta:
-                print("Consulta feita")
-                print(f'Reserva: {resposta}')
 
-            else:
-                print("nao foi encontrado a reserva que deseja")
 
-        def consultar_historico(self, cpf):
-            cpf = input("Digite o seu CPF para consultar historico: ")
-            if self._validar_cpf(cpf):
-                resposta = self._tratar_chamada_metodo_proxy(self.proxy.buscar_historico, cpf)
 
-                if resposta:
-                    self.passagens[cpf] = resposta
-                    print(f"historico com base no cpf {cpf}:")
-                    for passagem in self.passagens[cpf]:
-                        print(passagem)
-                else:
-                    print("Nenhuma passagem encontrada para esse CPF.")
+        def consultar_historico(self):
+            self._tratar_chamada_metodo_proxy(self.proxy.buscar_historico)
 
     cliente = Cliente('localhost', 9876)
 
