@@ -16,7 +16,7 @@ public class Ticket {
     static final IdManager idManager = new IdManager();
 
     // Construtor
-    public Ticket(String cpf, String data, String hora, String origem, String destino, String nome, int poltrona) {
+    public Ticket(String cpf, String nome, String data, String hora, String origem, String destino,  int poltrona) {
         this.cpf = cpf;
         this.data = data;
         this.hora = hora;

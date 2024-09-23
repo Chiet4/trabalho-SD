@@ -9,9 +9,6 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.function.Function;
 
-import com.google.gson.JsonObject;
-import java.util.List;
-import java.util.function.Function;
 
 public class Esqueleto {
     private final Passagem passagem;
@@ -132,14 +129,14 @@ public class Esqueleto {
     // Criação do objeto Ticket a partir dos parâmetros Json
     private Ticket criarTicket(JsonObject params) throws Exception {
         String cpf = getParam(params, "cpf");
+        String nome = getParam(params, "nome");
         String data = getParam(params, "data");
         String hora = getParam(params, "hora");
         String origem = getParam(params, "origem");
         String destino = getParam(params, "destino");
-        String nome = getParam(params, "nome");
         int poltrona = getIntParam(params, "poltrona");
 
-        return new Ticket(cpf, data, hora, origem, destino, nome, poltrona);
+        return new Ticket(cpf, nome, data, hora, origem, destino, poltrona);
     }
 
     // Método auxiliar para obter parâmetros do JsonObject
