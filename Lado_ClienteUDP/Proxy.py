@@ -8,12 +8,12 @@ class Proxy:
         self.request_id = 0
         self.client = UDPClient(hostname, port)
 
-    def doOperation(self, methodId, params=None):
+    def doOperation(self, args, params=None):
         self.request_id += 1
 
         if params is not None:
             # Cria a mensagem de requisição
-            message = Message(methodId)
+            message = Message(args)
             message.setMessageType(0)  # 0 = Requisição
             message.setRequestId(self.request_id)
             message.setArguments(params)
@@ -21,10 +21,10 @@ class Proxy:
             return message.to_json()  # Já gera uma string JSON
         else:
             # Processa a resposta
-            if isinstance(methodId, str):
-                message = json.loads(methodId)  # Desserializa a resposta se for string JSON
+            if isinstance(args, str):
+                message = json.loads(args)  # Desserializa a resposta se for string JSON
             else:
-                message = methodId  # Se já for um dicionário, usa diretamente
+                message = args  # Se já for um dicionário, usa diretamente
 
             if message["messageType"] == 1:  # 1 = Resposta
                 arguments = message["arguments"]
