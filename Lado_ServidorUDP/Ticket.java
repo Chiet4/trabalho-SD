@@ -133,9 +133,6 @@ class IdManager {
         return id;
     }
 
-    public List<String> getUsedIds() {
-        return usedIds;
-    }
 
     public void liberarId(String id) {
         if (usedIds.remove(id)) {

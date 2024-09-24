@@ -1,6 +1,5 @@
 package com.anchietaalbano.trabalho;
 
-import com.anchietaalbano.trabalho.exceptions.NetworkExceptionHandler;
 import com.anchietaalbano.trabalho.logs.LoggerColorido;
 import com.anchietaalbano.trabalho.metodosTransparentes.Despachante;
 
@@ -12,10 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 public class UDPServer {
     private static final int PORT = 9876;
     private static final Despachante despachante = new Despachante();
+    private static final int MAX_REQUESTS_BEFORE_FAILURE = 2; // Defina o limite desejado (por exemplo, 2 ou 3)
+    private static int requestCounter = 0;
 
     private static final Map<String, String> HistoricoRequest = new HashMap<>();
     private static DatagramSocket serverSocket = null;
@@ -24,8 +24,8 @@ public class UDPServer {
 
         try {
             serverSocket = new DatagramSocket(PORT);
+
             LoggerColorido.logInfo("Servidor iniciado!");
-            byte[] receiveData = new byte[512];
 
             while (true) {
                 DatagramPacket receivePacket = getRequest();
@@ -33,11 +33,28 @@ public class UDPServer {
                 // Processa a requisição e gera a resposta
                 String response = processRequest(receivePacket);
 
+                if (qt_time()) {
+                    LoggerColorido.logAviso("Simulando falha: processando a requisição, mas não enviando resposta.");
+                    processRequest(receivePacket); // Processa a requisição, mas não envia resposta
+                    continue; // Pula para a próxima iteração do loop
+                }
+//                serverSocket.close();
+                //InetAddress invalidAddress = InetAddress.getByName("invalido.local");
                 // Envia a resposta de volta ao cliente
                 sendReply(serverSocket, response, receivePacket.getAddress(), receivePacket.getPort());
             }
+        } catch (BindException e) {
+            LoggerColorido.logErro("Porta já está em uso: " + e.getMessage());
+        } catch (PortUnreachableException e) {
+            LoggerColorido.logErro("Porta do cliente inacessível: " + e.getMessage());
+        } catch (SocketException e) {
+            LoggerColorido.logErro("Erro de socket: " + e.getMessage());
+        } catch (UnknownHostException e) {
+            LoggerColorido.logErro("Host desconhecido: " + e.getMessage());
+        } catch (IOException e) {
+            LoggerColorido.logErro("Erro de I/O: " + e.getMessage());
         } catch (Exception e) {
-            handleException(e);
+            LoggerColorido.logErro("Erro inesperado: " + e.getMessage());
         } finally {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
@@ -45,7 +62,12 @@ public class UDPServer {
             }
         }
     }
-    
+
+    private static boolean qt_time() {
+        requestCounter++;
+        return requestCounter % MAX_REQUESTS_BEFORE_FAILURE == 0;
+    }
+
     // Recebimento do Datagrama UDP do cliente
     private static DatagramPacket getRequest() throws IOException {
         byte[] receiveData = new byte[512];  // Define o buffer de recebimento dentro do método
@@ -75,8 +97,9 @@ public class UDPServer {
 
         String requestHash = gerarSimplesHash(message);
 
-        if(HistoricoRequest.containsKey(requestHash)) {
-            LoggerColorido.logInfo("Request duplicada detectada. Retornando resposta em historio.");
+
+        if (HistoricoRequest.containsKey(requestHash)) {
+            LoggerColorido.logErro("Request duplicada detectada. Retornando resposta do histórico.");
             return HistoricoRequest.get(requestHash);
         }
 
@@ -93,24 +116,6 @@ public class UDPServer {
         return Integer.toString(uniqueMessage.hashCode());
     }
 
-
-    private static void handleException(Exception e) {
-        if (e instanceof BindException) {
-            NetworkExceptionHandler.handleBindException((BindException) e);
-        } else if (e instanceof PortUnreachableException) {
-            NetworkExceptionHandler.handlePortUnreachableException((PortUnreachableException) e);
-        } else if (e instanceof NoRouteToHostException) {
-            NetworkExceptionHandler.handleNoRouteToHostException((NoRouteToHostException) e);
-        } else if (e instanceof SocketException) {
-            NetworkExceptionHandler.handleSocketException((SocketException) e);
-        } else if (e instanceof UnknownHostException) {
-            NetworkExceptionHandler.handleUnknownHostException((UnknownHostException) e);
-        } else if (e instanceof IOException) {
-            NetworkExceptionHandler.handleIOException((IOException) e);
-        } else if (e instanceof SecurityException) {
-            NetworkExceptionHandler.handleSecurityException((SecurityException) e);
-        }
-    }
 
 }
 

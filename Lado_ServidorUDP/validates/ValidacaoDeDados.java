@@ -6,11 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.logging.Logger;
-import com.google.gson.JsonObject;
-
 public class ValidacaoDeDados {
 
     private static final Logger logger = Logger.getLogger(ValidacaoDeDados.class.getName());
@@ -22,7 +17,7 @@ public class ValidacaoDeDados {
         String hora = getParam(params, "hora");
         String origem = getParam(params, "origem");
         String destino = getParam(params, "destino");
-        int poltrona = getIntParam(params, "poltrona");
+        int poltrona = getIntParam(params);
 
         // Validações para cada argumento
         if (!validarCPF(cpf)) {
@@ -117,11 +112,11 @@ public class ValidacaoDeDados {
         }
     }
 
-    private static int getIntParam(JsonObject params, String paramName) throws Exception {
-        if (params.has(paramName) && !params.get(paramName).isJsonNull()) {
-            return params.get(paramName).getAsInt();
+    private static int getIntParam(JsonObject params) throws Exception {
+        if (params.has("poltrona") && !params.get("poltrona").isJsonNull()) {
+            return params.get("poltrona").getAsInt();
         }
-        throw new Exception("Parâmetro " + paramName + " não encontrado ou é nulo.");
+        throw new Exception("Parâmetro " + "poltrona" + " não encontrado ou é nulo.");
     }
 
 }
