@@ -21,30 +21,30 @@ public class ValidacaoDeDados {
 
         // Validações para cada argumento
         if (!validarCPF(cpf)) {
-            throw new Exception("CPF inválido: " + cpf);
+            throw new Exception("Validacao - CPF inválido: " + cpf);
         }
         if (!validarNome(nome)) {
-            throw new Exception("Nome inválido: " + nome);
+            throw new Exception("Validacao - Nome inválido: " + nome);
         }
         if (!validarData(data)) {
-            throw new Exception("Data inválida: " + data);
+            throw new Exception("Validacao - Data inválida: " + data);
         }
         if (!validarHora(hora)) {
-            throw new Exception("Hora inválida: " + hora);
+            throw new Exception("Validacao - Hora inválida: " + hora);
         }
         if (!validarOrigemDestino(origem)) {
-            throw new Exception("Origem inválida: " + origem);
+            throw new Exception("Validacao - Origem inválida: " + origem);
         }
         if (!validarOrigemDestino(destino)) {
-            throw new Exception("Destino inválido: " + destino);
+            throw new Exception("Validacao - Destino inválido: " + destino);
         }
         if (!validarPoltrona(poltrona)) {
-            throw new Exception("Número da poltrona inválido: " + poltrona);
+            throw new Exception("Validacao - Número da poltrona inválido: " + poltrona);
         }
     }
 
     public static boolean validarCPF(String cpf) {
-        if (cpf != null && cpf.matches("\\d{11}")) {
+        if ((cpf != null) && cpf.matches("\\d{11}")) {
             return true;
         }
         logger.warning("CPF inválido. Deve conter 11 dígitos numéricos.");

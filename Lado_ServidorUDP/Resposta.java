@@ -17,6 +17,7 @@ public class Resposta {
         return mensagem;
     }
 
+
     public static Resposta ok(String mensagem) {
         return new Resposta(200, mensagem);
     }

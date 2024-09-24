@@ -14,11 +14,12 @@ import java.util.Map;
 public class UDPServer {
     private static final int PORT = 9876;
     private static final Despachante despachante = new Despachante();
-    private static final int MAX_REQUESTS_BEFORE_FAILURE = 2; // Defina o limite desejado (por exemplo, 2 ou 3)
+    private static final int MAX_REQUESTS_BEFORE_FAILURE = 3; // Defina o limite desejado (por exemplo, 2 ou 3)
     private static int requestCounter = 0;
 
     private static final Map<String, String> HistoricoRequest = new HashMap<>();
     private static DatagramSocket serverSocket = null;
+
 
     public static void main(String[] args) {
 
@@ -30,16 +31,20 @@ public class UDPServer {
             while (true) {
                 DatagramPacket receivePacket = getRequest();
 
-                // Processa a requisição e gera a resposta
-                String response = processRequest(receivePacket);
-
                 if (qt_time()) {
                     LoggerColorido.logAviso("Simulando falha: processando a requisição, mas não enviando resposta.");
                     processRequest(receivePacket); // Processa a requisição, mas não envia resposta
-                    continue; // Pula para a próxima iteração do loop
+                    continue;
                 }
-//                serverSocket.close();
-                //InetAddress invalidAddress = InetAddress.getByName("invalido.local");
+
+                // Processa a requisição e gera a resposta
+                String response = processRequest(receivePacket);
+
+
+                //testes
+                //serverSocket.close();
+                //InetAddress invalidAddress = InetAddress.getByName("invalido.local"); //UnknownHost
+
                 // Envia a resposta de volta ao cliente
                 sendReply(serverSocket, response, receivePacket.getAddress(), receivePacket.getPort());
             }
@@ -65,7 +70,11 @@ public class UDPServer {
 
     private static boolean qt_time() {
         requestCounter++;
-        return requestCounter % MAX_REQUESTS_BEFORE_FAILURE == 0;
+        if (requestCounter == MAX_REQUESTS_BEFORE_FAILURE) {
+            requestCounter = 0;  // Reseta o contador
+            return true;  // Simula a falha
+        }
+        return false;  // Continua normalmente
     }
 
     // Recebimento do Datagrama UDP do cliente
@@ -112,10 +121,9 @@ public class UDPServer {
     }
 
     private static String gerarSimplesHash(Message message){
-        String uniqueMessage = message.getRequestId() + message.getMethodId() + message.getParams().toString();
+        String uniqueMessage = message.getMethodId() + message.getMessageType() + message.getMethodId() + message.getParams().toString();
         return Integer.toString(uniqueMessage.hashCode());
     }
-
 
 }
 

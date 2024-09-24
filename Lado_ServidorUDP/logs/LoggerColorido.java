@@ -21,7 +21,4 @@ public class LoggerColorido {
         System.out.println(AMARELO + "AVISO: " + mensagem + RESET);
     }
 
-    public static void logDebug(String mensagem) {
-        System.out.println(AZUL + "DEBUG: " + mensagem + RESET);
-    }
 }
