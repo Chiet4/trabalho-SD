@@ -5,16 +5,20 @@ Este sistema permite que os usuários reservem, atualizem e cancelem passagens d
 ## Índice
 
 1. Descrição do Projeto
-2. Funcionalidades Principais
-3. Componentes do Sistema
-4. Como Executar o Projeto
-5. Estrutura do Código
-6. Contribuindo
-7. Licença
+2. UML do server
+3. Funcionalidades Principais
+4. Componentes do Sistema
+5. Como Executar o Projeto
+6. Estrutura do Código
+
 
 ## Descrição do Projeto
 
 O sistema de reservas de passagens de ônibus foi desenvolvido para facilitar a gestão de reservas, atualizações e cancelamentos de passagens. Ele utiliza comunicação via UDP para receber e processar requisições dos clientes, esse projeto faz parte do trabalho final da cadeira de Sistemas Distribuídos.
+
+## Fluxograma
+
+![UML do Server](./UMLServer.jpeg)
 
 ## Funcionalidades Principais
 
