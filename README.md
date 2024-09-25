@@ -9,7 +9,6 @@ Este sistema permite que os usuários reservem, atualizem e cancelem passagens d
 3. Funcionalidades Principais
 4. Componentes do Sistema
 5. Como Executar o Projeto
-6. Estrutura do Código
 
 
 ## Descrição do Projeto
@@ -144,21 +143,3 @@ O sistema de reservas de passagens de ônibus foi desenvolvido para facilitar a 
 2. Abra o projeto em sua IDE preferida.
 3. Execute o servidor `UDPServer`.
 4. Envie requisições para o servidor via UDPCliente.
-
-## Estrutura do Código
-
-```plaintext
-com.anchietaalbano.trabalho
-├── logs
-│   └── LoggerColorido.java
-├── metodosTransparentes
-│   ├── Despachante.java
-│   └── Esqueleto.java
-├── validates
-│   └── ValidacaoDeDados.java
-├── IdManager.java
-├── Message.java
-├── Passagem.java
-├── Resposta.java
-├── Ticket.java
-└── UDPServer.java
