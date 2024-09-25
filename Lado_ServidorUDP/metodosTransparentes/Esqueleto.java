@@ -104,6 +104,9 @@ private Resposta consultarReservaInterno(JsonObject params) {
 private Resposta consultarHistoricoInterno(JsonObject params) {
     try {
         List<String> historicos = passagem.consultar_historico();
+        if(historicos.isEmpty()){
+            return Resposta.notFound("Nenhuma movimentação de passagens ainda.");
+        }
         return Resposta.ok(String.join(";", historicos));
     } catch (Exception e) {
         return handleException(e, "consultar_historico");

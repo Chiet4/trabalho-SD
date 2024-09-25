@@ -71,10 +71,6 @@ public class Passagem {
             }
         }
 
-        if (resultado.isEmpty()) {
-            throw new Exception("Não há tickets reservados para esse CPF.");
-        }
-
         return resultado;
     }
 
@@ -90,6 +86,7 @@ public class Passagem {
         for (Ticket t : ticketsCancelados.values()) {
             resultado.add( " (CANCELADO) -> " + t.toString());
         }
+
 
         return resultado;
     }

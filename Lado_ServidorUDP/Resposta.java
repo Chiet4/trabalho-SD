@@ -38,8 +38,4 @@ public class Resposta {
         return new Resposta(500, mensagem);
     }
 
-    @Override
-    public String toString() {
-        return "Código: " + codigo + " - " + mensagem;
-    }
 }
