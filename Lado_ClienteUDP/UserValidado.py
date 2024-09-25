@@ -1,6 +1,7 @@
 from datetime import datetime
 from Proxy import Proxy
 import pytz
+from Ticket import Ticket
 
 
 def main():
@@ -42,7 +43,7 @@ def main():
 
             self.proxy.close()
 
-        # metodo para chamar execução de metodos do lado do proxy
+
         def _tratar_chamada_metodo_proxy(self, metodo_proxy, *args):
             try:
                 resposta = metodo_proxy(*args)
@@ -138,7 +139,7 @@ def main():
         def _validar_poltrona(poltrona, min_poltrona=1, max_poltrona=50):
             while True:
                 if poltrona.isdigit() and min_poltrona <= int(poltrona) <= max_poltrona:
-                    return poltrona
+                    return str(poltrona)
                 else:
                     print(f'ERRO: O número da poltrona deve estar entre {min_poltrona} e {max_poltrona}.')
                     poltrona = input(f"Digite o número da poltrona novamente ({min_poltrona}-{max_poltrona}): ")
@@ -152,8 +153,9 @@ def main():
             destino = self._validar_destino(input("Destino: "))
             poltrona = self._validar_poltrona(input("Poltrona: "))
 
-            self._tratar_chamada_metodo_proxy(self.proxy.reservar_ticket, cpf, nome, data, hora, origem, destino,
-                                              poltrona)
+            ticket = Ticket(cpf,nome,data,hora,origem,destino,poltrona)
+
+            self._tratar_chamada_metodo_proxy(self.proxy.reservar_ticket, ticket)
 
         def atualizar_reserva(self):
             ticket_id = input("ID do Ticket: ")
@@ -165,8 +167,9 @@ def main():
             destino = self._validar_destino(input("Destino: "))
             poltrona = self._validar_poltrona(input("Poltrona: "))
 
-            self._tratar_chamada_metodo_proxy(self.proxy.atualizar_ticket, ticket_id, cpf, nome, data, hora, origem,
-                                              destino, poltrona)
+            ticket = Ticket(cpf, nome, data, hora, origem, destino, poltrona)
+
+            self._tratar_chamada_metodo_proxy(self.proxy.atualizar_ticket, ticket_id, ticket)
 
         def cancelar_reserva(self):
             ticket_id = input("ID do Ticket: ")
